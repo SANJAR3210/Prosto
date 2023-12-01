@@ -4,7 +4,7 @@ import math
 pygame.init()
 size = width, height = 800, 800
 screen = pygame.display.set_mode(size)
-pygame.display.set_caption("Шарики")
+pygame.display.set_caption('Шарики')
 
 
 class Ball:
