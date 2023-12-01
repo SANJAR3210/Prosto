@@ -1,53 +1,54 @@
 import pygame
 import math
 
-# инициализация Pygame
+# Инициализация Pygame
 pygame.init()
 
-# размеры окна
+# Создание окна
 size = width, height = 800, 800
-
-# создание окна
 screen = pygame.display.set_mode((size))
-
-# установка названия окна
 pygame.display.set_caption("Шарики")
 
+# Класс для представления шарика
+class Ball():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.speed = 100
+        self.angle = math.radians(45)
 
-# радиус и скорость шарика
-speed = 100
+    def update(self, dt):
+        # Вычисление новых координат шарика
+        dx = self.speed * math.cos(self.angle) * dt
+        dy = -self.speed * math.sin(self.angle) * dt
+        self.x -= dx
+        self.y += dy
 
-# список координат и скоростей шариков
+        # Проверка столкновения с границами окна
+        if self.x - 10 < 0 or self.x + 10 > width:
+            self.angle = math.pi - self.angle
+        if self.y - 10 < 0 or self.y + 10 > height:
+            self.angle = -self.angle
+
+    def draw(self):
+        pygame.draw.circle(screen, (255, 255, 255), (int(self.x), int(self.y)), 10)
+
+# Список шариков
 balls = []
-
-# обработчик событий
-while True:
+running = True
+clock = pygame.time.Clock()
+while running:
+    dt = clock.tick(60) / 1000  # Вычисление времени, прошедшего с предыдущего кадра
     for event in pygame.event.get():
-        # если нажата левая кнопка мыши
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            # получение координат курсора мыши
-            pos = pygame.mouse.get_pos()
-            # добавление координат и скоростей нового шарика
-            balls.append([pos[0], pos[1], speed / math.sqrt(2), -speed / math.sqrt(2)])
-
-    # закраска фона
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            ball = Ball(event.pos[0], event.pos[1])
+            balls.append(ball)
     screen.fill((0, 0, 0))
-
-    # отрисовка и движение шариков
+    # Обновление и рисование каждого шарика
     for ball in balls:
-        # отрисовка шарика
-        pygame.draw.circle(screen, (255, 255, 255), [int(ball[0]), int(ball[1])], 10)
-        # обновление координат
-        ball[0] += ball[2] / 60
-        ball[1] += ball[3] / 60
-        # проверка на столкновение со стенками окна
-        if ball[0] < 10 or ball[0] > width - 10:
-            ball[2] = -ball[2]
-        if ball[1] < 10 or ball[1] > height - 10:
-            ball[3] = -ball[3]
-
-    # обновление окна
-    pygame.display.update()
-
-    # задержка
-    pygame.time.delay(10)
+        ball.update(dt)
+        ball.draw()
+    pygame.display.flip()
+pygame.quit()
