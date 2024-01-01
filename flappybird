@@ -1,0 +1,239 @@
+import pygame
+import random
+import sys
+
+# отступ для прикола :)
+print('для кастомизации птички введите (целое) число (всего есть 3 скина)')
+skin = int(input())
+count = 0
+i = 0
+
+for i in range(1, skin + 1):  # нужно простое число
+    if skin % i == 0:
+        count += 1
+
+if count == 2:
+    print('Поздравляю вы открыли секретный облик для птички, труб и фон')
+    i = 2
+
+else:
+    if skin > 100:
+        i = 1
+
+    else:
+        i = 0
+
+bird = ['bird1.png', '1.png', 'супер пупер мега секретный скин.png']
+fon = ['fon1.png', '12.png', 'супер пупер мега секретный фон.png']
+truba = ['pipe.png', '123.jpg', 'труба.png']
+
+title = 'заставка.png'
+base = 'base.png'
+gameOver = 'gameover.png'
+background = fon[i]
+pipe = truba[i]
+player = bird[i]
+
+screenWidth = 500
+screenHeight = 500
+screen = pygame.display.set_mode((screenWidth, screenHeight))
+FPS = 30
+Speed_prokrutki = 4
+game_images = {}
+
+baseY = screenHeight * 0.75
+pipeGap = screenHeight / 4
+pipeHeight = 300
+pipeWidth = 70
+stolknovenie = False
+
+
+def zagruzka_izobrazheniy():
+    game_images['score'] = (
+        pygame.transform.scale(pygame.image.load('zero1.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('one1.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('two1.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('three1.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('four1.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('five1.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('six1.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('seven1.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('eight1.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('nine1.png'), (50, 50)))
+    game_images['base'] = pygame.transform.scale(pygame.image.load(base), (screenWidth * 2, 200))
+    game_images['pipe'] = (
+        pygame.transform.rotate(pygame.transform.scale(pygame.image.load(pipe), (pipeWidth, pipeHeight)), 180),
+        pygame.transform.scale(pygame.image.load(pipe), (pipeWidth, pipeHeight)))
+    game_images['player'] = pygame.transform.scale(pygame.image.load(player), (50, 50))
+    game_images['gameOver'] = pygame.transform.scale(pygame.image.load(gameOver), (200, 300))
+    game_images['title'] = pygame.transform.scale(pygame.image.load(title), (200, 100))
+    game_images['background'] = pygame.transform.scale(pygame.image.load(background), (screenWidth, screenHeight - 25))
+
+
+# Генерация положения двух труб сверху и снизу
+def Randomnie_trubi():
+    height = random.randrange(0, int(baseY * 0.8 - pipeGap))
+    height += int(baseY * 0.2)
+    pipeX = screenWidth + 60
+
+    pipes = [
+        {'x': pipeX, 'y': height - pipeHeight},  # Верхняя труба
+        {'x': pipeX, 'y': height + pipeGap},  # Нижняя труба
+    ]
+    return pipes
+
+
+# Заставка
+def Start():
+    playerX = int(screenWidth * 0.4)
+    playerY = int((screenHeight - game_images['player'].get_height()) * 0.5)
+    titleX = int((screenWidth - game_images['title'].get_width()) * 0.5)
+    titleY = int(screenHeight * 0.2)
+    baseX = 0
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN and (event.key == pygame.K_SPACE or event.key == pygame.K_UP):
+                Play()
+            else:
+                screen.blit(game_images['background'], (0, 0))
+                screen.blit(game_images['player'], (playerX, playerY))
+                screen.blit(game_images['base'], (baseX, baseY))
+                screen.blit(game_images['title'], (titleX, titleY))
+                # обновление экрана
+                pygame.display.update()
+                fps_clock.tick(FPS)
+
+
+# Проверка на столкновений
+def Proverka(playerx, playery, upperPipes, lowerPipes):
+    score = 0
+    if playery <= 0 or playery >= 400:
+        return True
+    else:
+        for upperpipe, lowerpipe in zip(upperPipes, lowerPipes):
+            if abs(playerx - upperpipe['x']) <= game_images['pipe'][0].get_width():
+                if playery <= pipeHeight + upperpipe['y']:
+                    return True
+            if abs(playerx - lowerpipe['x']) <= game_images['pipe'][0].get_width():
+                if playery + game_images['player'].get_height() >= lowerpipe['y']:
+                    return True
+        return False
+
+
+# Заставка окончания
+def Gameover(score):
+    gameOverX = int((screenWidth - game_images['gameOver'].get_width()) * 0.5)
+    gameOverY = int(screenHeight * 0.2)
+    screen.blit(game_images['background'], (0, 0))
+    screen.blit(game_images['gameOver'], (gameOverX, gameOverY))
+    screen.blit(game_images['base'], (0, baseY))
+
+    # Финальный счёт
+    scoreFont = pygame.font.SysFont('couriernew', 40, bold=True)
+    display = scoreFont.render(f"Score: {score}", True, (255, 127, 0))
+    screen.blit(display, (screenWidth * 0.2, screenHeight * 0.4))
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN and (event.key == pygame.K_SPACE or event.key == pygame.K_UP):
+                Start()
+
+        pygame.display.update()
+        fps_clock.tick(FPS)
+
+
+def Play():
+    playerX = int(screenWidth * 0.4)
+    playerY = int((screenHeight - game_images['player'].get_height()) * 0.5)
+    baseX = 0
+    vel = 0
+    score = 0
+    # create 2 pipes
+    newPipe1 = Randomnie_trubi()
+    newPipe2 = Randomnie_trubi()
+    upperPipes = [
+        {'x': screenWidth + 200, 'y': newPipe1[0]['y']},
+        {'x': screenWidth + 200 + (screenWidth / 2), 'y': newPipe2[0]['y']}
+    ]
+    lowerPipes = [
+        {'x': screenWidth + 200, 'y': newPipe1[1]['y']},
+        {'x': screenWidth + 200 + (screenWidth / 2), 'y': newPipe2[1]['y']}
+    ]
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                vel = -6
+            if event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
+                vel = 3
+
+        playerY += vel
+
+        # Проверка упала ли птичка
+        stolknovenie = Proverka(playerX, playerY, upperPipes, lowerPipes)
+        if stolknovenie:
+            Gameover(score)
+        # Движение труб
+        for upperPipe, lowerPipe in zip(upperPipes, lowerPipes):
+            upperPipe['x'] -= Speed_prokrutki
+            lowerPipe['x'] -= Speed_prokrutki
+
+        # Добавление новой трубы когда старая пройдёт
+        if 0 < upperPipes[0]['x'] < 5:
+            newPipe = Randomnie_trubi()
+            upperPipes.append(newPipe[0])
+            lowerPipes.append(newPipe[1])
+
+        # исчезновение трубы за пределами экрана
+        if upperPipes[0]['x'] < -game_images['pipe'][0].get_width():
+            upperPipes.pop(0)
+            lowerPipes.pop(0)
+        # рисование спрайтов
+        screen.blit(game_images['background'], (0, 0))
+        for upperPipe, lowerPipe in zip(upperPipes, lowerPipes):
+            screen.blit(game_images['pipe'][0], (upperPipe['x'], upperPipe['y']))
+            screen.blit(game_images['pipe'][1], (lowerPipe['x'], lowerPipe['y']))
+
+        screen.blit(game_images['base'], (baseX, baseY))
+        screen.blit(game_images['player'], (playerX, playerY))
+        baseX -= Speed_prokrutki
+        if abs(baseX) > screenWidth:
+            baseX = 0
+
+        # Показатель очков
+        xz_kak_nazvat = playerX + game_images['player'].get_width() / 2
+        for pipe in upperPipes:
+            pipeMidPos = pipe['x'] + pipeWidth / 2
+            if pipeMidPos <= xz_kak_nazvat < pipeMidPos + 4:
+                score += 1
+
+        xz = [int(x) for x in list(str(score))]
+        width = 0
+        for digit in xz:
+            width += game_images['score'][digit].get_width()
+        scoreX = (screenWidth - width) / 2
+        scoreY = screenHeight * 0.12
+
+        for digit in xz:
+            screen.blit(game_images['score'][digit], (scoreX, scoreY))
+            scoreX += game_images['score'][digit].get_width()
+        pygame.display.update()
+        fps_clock.tick(FPS)
+
+
+if __name__ == "__main__":
+    pygame.init()
+    fps_clock = pygame.time.Clock()
+    fps_clock.tick(FPS)
+    pygame.display.set_caption('Клон сам знаешь кого')
+    zagruzka_izobrazheniy()
+    while True:
+        Start()
