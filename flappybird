@@ -133,7 +133,7 @@ def Gameover(score):
 
     # Финальный счёт
     scoreFont = pygame.font.SysFont('couriernew', 40, bold=True)
-    display = scoreFont.render(f"Score: {score}", True, (255, 127, 0))
+    display = scoreFont.render(f"Счёт: {score}", True, (255, 127, 0))
     screen.blit(display, (screenWidth * 0.2, screenHeight * 0.4))
 
     while True:
@@ -233,7 +233,7 @@ if __name__ == "__main__":
     pygame.init()
     fps_clock = pygame.time.Clock()
     fps_clock.tick(FPS)
-    pygame.display.set_caption('Клон сам знаешь кого')
+    pygame.display.set_caption('Flappy Noname')
     zagruzka_izobrazheniy()
     while True:
         Start()
