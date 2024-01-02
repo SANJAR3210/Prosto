@@ -7,6 +7,7 @@ print('для кастомизации птички введите (целое) 
 skin = int(input())
 count = 0
 i = 0
+color = (255, 127, 0)
 
 for i in range(1, skin + 1):  # нужно простое число
     if skin % i == 0:
@@ -15,13 +16,16 @@ for i in range(1, skin + 1):  # нужно простое число
 if count == 2:
     print('Поздравляю вы открыли секретный облик для птички, труб и фон')
     i = 2
+    color = 'purple'
 
 else:
     if skin > 100:
         i = 1
+        color = (255, 0, 0)
 
     else:
         i = 0
+        color = (0, 0, 0)
 
 bird = ['bird1.png', '1.png', 'супер пупер мега секретный скин.png']
 fon = ['fon1.png', '12.png', 'супер пупер мега секретный фон.png']
@@ -29,13 +33,12 @@ truba = ['pipe.png', '123.jpg', 'труба.png']
 
 title = 'заставка.png'
 base = 'base.png'
-gameOver = 'gameover.png'
 background = fon[i]
 pipe = truba[i]
 player = bird[i]
 
-screenWidth = 500
-screenHeight = 500
+screenWidth = 800
+screenHeight = 480
 screen = pygame.display.set_mode((screenWidth, screenHeight))
 FPS = 30
 Speed_prokrutki = 4
@@ -46,6 +49,26 @@ pipeGap = screenHeight / 4
 pipeHeight = 300
 pipeWidth = 70
 stolknovenie = False
+
+
+def makeTextObjs(text, font):
+    textSurface = font.render(text, True, color)
+    return textSurface, textSurface.get_rect()
+
+
+def mgs_surface(text):
+    smallText = pygame.font.Font('freesansbold.ttf', 20)
+    largeText = pygame.font.Font('freesansbold.ttf', 130)
+
+    titletextSur, titleTextRect = makeTextObjs(text, largeText)
+    titleTextRect.center = screenWidth / 2, screenHeight / 2
+    screen.blit(titletextSur, titleTextRect)
+
+    typetextSur, typeTextRect = makeTextObjs('А это сложнее чем кажется', smallText)
+    typeTextRect.center = screenWidth / 2, ((screenHeight / 2) + 100)
+    screen.blit(typetextSur, typeTextRect)
+
+    pygame.display.update()
 
 
 def zagruzka_izobrazheniy():
@@ -65,7 +88,6 @@ def zagruzka_izobrazheniy():
         pygame.transform.rotate(pygame.transform.scale(pygame.image.load(pipe), (pipeWidth, pipeHeight)), 180),
         pygame.transform.scale(pygame.image.load(pipe), (pipeWidth, pipeHeight)))
     game_images['player'] = pygame.transform.scale(pygame.image.load(player), (50, 50))
-    game_images['gameOver'] = pygame.transform.scale(pygame.image.load(gameOver), (200, 300))
     game_images['title'] = pygame.transform.scale(pygame.image.load(title), (200, 100))
     game_images['background'] = pygame.transform.scale(pygame.image.load(background), (screenWidth, screenHeight - 25))
 
@@ -125,16 +147,12 @@ def Proverka(playerx, playery, upperPipes, lowerPipes):
 
 # Заставка окончания
 def Gameover(score):
-    gameOverX = int((screenWidth - game_images['gameOver'].get_width()) * 0.5)
-    gameOverY = int(screenHeight * 0.2)
-    screen.blit(game_images['background'], (0, 0))
-    screen.blit(game_images['gameOver'], (gameOverX, gameOverY))
-    screen.blit(game_images['base'], (0, baseY))
+    mgs_surface('Game Over')
 
     # Финальный счёт
-    scoreFont = pygame.font.SysFont('couriernew', 40, bold=True)
+    scoreFont = pygame.font.SysFont('Aguante', 40, bold=True)
     display = scoreFont.render(f"Счёт: {score}", True, (255, 127, 0))
-    screen.blit(display, (screenWidth * 0.2, screenHeight * 0.4))
+    screen.blit(display, (10, 10))
 
     while True:
         for event in pygame.event.get():
