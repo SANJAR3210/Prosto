@@ -61,15 +61,15 @@ def Maketext(text, font):
 
 
 def Nadpis_v_konce(text):
+    bigText = pygame.font.Font('freesansbold.ttf', 140)
     smallText = pygame.font.Font('freesansbold.ttf', 20)
-    largeText = pygame.font.Font('freesansbold.ttf', 130)
 
-    titletextSur, titleTextRect = Maketext(text, largeText)
-    titleTextRect.center = screenWidth / 2, screenHeight / 2
+    titletextSur, titleTextRect = Maketext(text, bigText)
+    titleTextRect.center = screenWidth / 2, 150
     screen.blit(titletextSur, titleTextRect)
 
     typetextSur, typeTextRect = Maketext(nadpis, smallText)
-    typeTextRect.center = screenWidth / 2, ((screenHeight / 2) + 100)
+    typeTextRect.center = screenWidth / 2, 250
     screen.blit(typetextSur, typeTextRect)
 
     pygame.display.update()
@@ -176,7 +176,6 @@ def Play():
     baseX = 0
     vel = 0
     score = 0
-    # create 2 pipes
     newPipe1 = Randomnie_trubi()
     newPipe2 = Randomnie_trubi()
     upperPipes = [
@@ -233,20 +232,20 @@ def Play():
         # Показатель очков
         xz_kak_nazvat = playerX + game_images['player'].get_width() / 2
         for pipe in upperPipes:
-            pipeMidPos = pipe['x'] + pipeWidth / 2
-            if pipeMidPos <= xz_kak_nazvat < pipeMidPos + 4:
+            pipeMP = pipe['x'] + pipeWidth / 2
+            if pipeMP <= xz_kak_nazvat < pipeMP + 4:
                 score += 1
 
         xz = [int(x) for x in list(str(score))]
         width = 0
-        for digit in xz:
-            width += game_images['score'][digit].get_width()
+        for i in xz:
+            width += game_images['score'][i].get_width()
         scoreX = (screenWidth - width) / 2
-        scoreY = screenHeight * 0.12
+        scoreY = 15
 
-        for digit in xz:
-            screen.blit(game_images['score'][digit], (scoreX, scoreY))
-            scoreX += game_images['score'][digit].get_width()
+        for j in xz:
+            screen.blit(game_images['score'][j], (scoreX, scoreY))
+            scoreX += game_images['score'][j].get_width()
         pygame.display.update()
         fps_clock.tick(FPS)
 
