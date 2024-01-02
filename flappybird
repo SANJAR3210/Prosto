@@ -8,6 +8,7 @@ skin = int(input())
 count = 0
 i = 0
 color = (255, 127, 0)
+nadpis = ''
 
 for i in range(1, skin + 1):  # нужно простое число
     if skin % i == 0:
@@ -17,15 +18,18 @@ if count == 2:
     print('Поздравляю вы открыли секретный облик для птички, труб и фон')
     i = 2
     color = 'purple'
+    nadpis = 'ну не повезло, не фартонуло :('
 
 else:
     if skin > 100:
         i = 1
         color = (255, 0, 0)
+        nadpis = 'Этот парень был из тех, кто просто любит жить'
 
     else:
         i = 0
         color = (0, 0, 0)
+        nadpis = 'А это сложнее чем кажется'
 
 bird = ['bird1.png', '1.png', 'супер пупер мега секретный скин.png']
 fon = ['fon1.png', '12.png', 'супер пупер мега секретный фон.png']
@@ -64,7 +68,7 @@ def mgs_surface(text):
     titleTextRect.center = screenWidth / 2, screenHeight / 2
     screen.blit(titletextSur, titleTextRect)
 
-    typetextSur, typeTextRect = makeTextObjs('А это сложнее чем кажется', smallText)
+    typetextSur, typeTextRect = makeTextObjs(nadpis, smallText)
     typeTextRect.center = screenWidth / 2, ((screenHeight / 2) + 100)
     screen.blit(typetextSur, typeTextRect)
 
