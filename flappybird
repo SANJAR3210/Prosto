@@ -2,6 +2,8 @@ import pygame
 import random
 import sys
 
+pygame.init()
+
 # отступ для прикола :)
 print('для кастомизации птички введите (целое) число (всего есть 3 скина)')
 skin = int(input())
@@ -31,10 +33,10 @@ else:
         color = (0, 0, 0)
         nadpis = 'А это сложнее чем кажется'
 
-bird = ['bird1.png', '1.png', 'супер пупер мега секретный скин.png']
+bird = ['classic_bird0.png', '1.png', 'супер пупер мега секретный скин.png']
+animation_bird = ['classic_bird0.png', 'classic_bird1.png', 'classic_bird0.png']
 fon = ['fon1.png', '12.png', 'супер пупер мега секретный фон.png']
 truba = ['pipe.png', '123.jpg', 'труба.png']
-
 title = 'заставка.png'
 base = 'base.png'
 background = fon[i]
@@ -47,7 +49,6 @@ screen = pygame.display.set_mode((screenWidth, screenHeight))
 FPS = 30
 Speed_prokrutki = 4
 game_images = {}
-
 baseY = screenHeight * 0.75
 pipeGap = screenHeight / 4
 pipeHeight = 300
@@ -77,16 +78,16 @@ def Nadpis_v_konce(text):
 
 def zagruzka_izobrazheniy():
     game_images['score'] = (
-        pygame.transform.scale(pygame.image.load('zero1.png'), (50, 50)),
-        pygame.transform.scale(pygame.image.load('one1.png'), (50, 50)),
-        pygame.transform.scale(pygame.image.load('two1.png'), (50, 50)),
-        pygame.transform.scale(pygame.image.load('three1.png'), (50, 50)),
-        pygame.transform.scale(pygame.image.load('four1.png'), (50, 50)),
-        pygame.transform.scale(pygame.image.load('five1.png'), (50, 50)),
-        pygame.transform.scale(pygame.image.load('six1.png'), (50, 50)),
-        pygame.transform.scale(pygame.image.load('seven1.png'), (50, 50)),
-        pygame.transform.scale(pygame.image.load('eight1.png'), (50, 50)),
-        pygame.transform.scale(pygame.image.load('nine1.png'), (50, 50)))
+        pygame.transform.scale(pygame.image.load('zero.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('one.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('two.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('three.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('four.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('five.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('six.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('seven.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('eight.png'), (50, 50)),
+        pygame.transform.scale(pygame.image.load('nine.png'), (50, 50)))
     game_images['base'] = pygame.transform.scale(pygame.image.load(base), (screenWidth * 2, 200))
     game_images['pipe'] = (
         pygame.transform.rotate(pygame.transform.scale(pygame.image.load(pipe), (pipeWidth, pipeHeight)), 180),
@@ -251,7 +252,6 @@ def Play():
 
 
 if __name__ == "__main__":
-    pygame.init()
     fps_clock = pygame.time.Clock()
     fps_clock.tick(FPS)
     pygame.display.set_caption('Flappy Noname')
