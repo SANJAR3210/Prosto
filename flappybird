@@ -4,44 +4,38 @@ import sys
 
 pygame.init()
 
-# отступ для прикола :)
-print('для кастомизации птички введите (целое) число (всего есть 3 скина)')
-skin = int(input())
-count = 0
-i = 0
-color = (255, 127, 0)
-nadpis = ''
+clock = pygame.time.Clock()
+skin = random.choice(range(1000))
+max_score = 0
 
-for i in range(1, skin + 1):  # нужно простое число
-    if skin % i == 0:
-        count += 1
-
-if count == 2:
+if skin >= 950:
     print('Поздравляю вы открыли секретный облик для птички, труб и фон')
-    i = 2
     color = 'purple'
+    background = 'супер пупер мега секретный фон.png'
+    pipe = 'труба.png'
+    player = 'супер пупер мега секретный скин.png'
     nadpis = 'ну не повезло, не фартонуло :('
 
+elif skin > 800:
+    color = (255, 0, 0)
+    nadpis = 'Этот парень был из тех, кто просто любит жить'
+    player = '1.png'
+    background = '12.png'
+    pipe = '123.jpg'
+
+
 else:
-    if skin > 100:
-        i = 1
-        color = (255, 0, 0)
-        nadpis = 'Этот парень был из тех, кто просто любит жить'
+    color = (0, 0, 0)
+    nadpis = 'А это сложнее чем кажется'
+    MYEVENTTYPE = pygame.USEREVENT + 1
+    pygame.time.set_timer(MYEVENTTYPE, 10)
+    player = 'classic_bird0.png'
+    background = 'fon1.png'
+    pipe = 'pipe.png'
 
-    else:
-        i = 0
-        color = (0, 0, 0)
-        nadpis = 'А это сложнее чем кажется'
-
-bird = ['classic_bird0.png', '1.png', 'супер пупер мега секретный скин.png']
 animation_bird = ['classic_bird0.png', 'classic_bird1.png', 'classic_bird0.png']
-fon = ['fon1.png', '12.png', 'супер пупер мега секретный фон.png']
-truba = ['pipe.png', '123.jpg', 'труба.png']
 title = 'заставка.png'
 base = 'base.png'
-background = fon[i]
-pipe = truba[i]
-player = bird[i]
 
 screenWidth = 800
 screenHeight = 480
