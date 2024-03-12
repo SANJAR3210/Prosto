@@ -1,0 +1,56 @@
+import telebot
+import datetime
+import threading
+
+bot = telebot.TeleBot('6662439465:AAFIY1nxwPtnB1cv0zp4T5GEdlmBKgEoGdc')
+
+
+@bot.message_handler(commands=['start'])
+def start_message(message):
+    # Отправляем сообщение пользователю
+    bot.send_message(message.chat.id, 'Чтобы создать событие, введите /event.')
+
+
+@bot.message_handler(commands=['event'])
+def event_message(message):
+    # Запрашиваем у пользователя название события и дату и время события
+    bot.send_message(message.chat.id, 'Введите название события:')
+    bot.register_next_step_handler(message, set_event_name)
+
+
+def set_event_name(message):
+    user_data = {}
+    user_data[message.chat.id] = {'event_name': message.text}
+    bot.send_message(message.chat.id,
+                     'Введите дату и время, когда вы хотите получить событие в формате ГГГГ-ММ-ДД чч:мм:сс.')
+    bot.register_next_step_handler(message, event_set, user_data)
+
+
+def event_set(message, user_data):
+    try:
+        event_time = datetime.datetime.strptime(message.text, '%Y-%m-%d %H:%M:%S')
+        now = datetime.datetime.now()
+        delta = event_time - now
+        if delta.total_seconds() <= 0:
+            bot.send_message(message.chat.id, 'Вы ввели прошедшую дату, попробуйте еще раз.')
+        else:
+            event_name = user_data[message.chat.id]['event_name']
+            bot.send_message(message.chat.id,
+                             'Событие "{}" установлено на {}.'.format(event_name, event_time))
+            event_timer = threading.Timer(delta.total_seconds(), send_event, [message.chat.id, event_name])
+            event_timer.start()
+    except ValueError:
+        bot.send_message(message.chat.id, 'Вы ввели неверный формат даты и времени, попробуйте еще раз.')
+
+
+def send_event(chat_id, event_name):
+    bot.send_message(chat_id, 'Внимание! Наступило событие "{}"!'.format(event_name))
+
+
+@bot.message_handler(func=lambda message: True)
+def handle_all_message(message):
+    bot.send_message(message.chat.id, 'Я не понимаю, что вы говорите. Чтобы создать событие, введите /event.')
+
+
+if __name__ == '__main__':
+    bot.polling(none_stop=True)
