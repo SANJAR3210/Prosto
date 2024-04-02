@@ -24,6 +24,8 @@ def events_status(message):
 def start_message(message):
     # Отправляем сообщение пользователю
     bot.send_message(message.chat.id, 'Чтобы создать событие, введите /event.')
+    bot.send_message(message.chat.id, 'Чтобы посмотреть на список событий, введите /events_status')
+    bot.send_message(message.chat.id, 'Чтобы удалить событие, введите /del_event.')
 
 
 @bot.message_handler(commands=['event'])
