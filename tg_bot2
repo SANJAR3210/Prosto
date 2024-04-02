@@ -2,7 +2,22 @@ import telebot
 import datetime
 import threading
 
+event_names = dict()
 bot = telebot.TeleBot('6662439465:AAFIY1nxwPtnB1cv0zp4T5GEdlmBKgEoGdc')
+
+
+@bot.message_handler(commands=['events_status'])
+def events_status(message):
+    try:
+        value_list = list(event_names.values())
+        key_list = list(event_names.keys())
+        if len(key_list) > 0:
+            for i in range(len(key_list)):
+                bot.send_message(message.chat.id, f'Событие {key_list[i]} длилось - {value_list[i]}')
+        else:
+            bot.send_message(message.chat.id, 'Ошибка, У вас нет событий')
+    except ValueError:
+        bot.send_message(message.chat.id, 'Ошибка, попробуйте снова')
 
 
 @bot.message_handler(commands=['start'])
@@ -39,8 +54,29 @@ def event_set(message, user_data):
                              'Событие "{}" установлено на {}.'.format(event_name, event_time))
             event_timer = threading.Timer(delta.total_seconds(), send_event, [message.chat.id, event_name])
             event_timer.start()
+            event_names[event_name] = delta
     except ValueError:
         bot.send_message(message.chat.id, 'Вы ввели неверный формат даты и времени, попробуйте еще раз.')
+
+
+@bot.message_handler(commands=['del_event'])
+def event_del(message):
+    bot.send_message(message.chat.id, 'Введите название события которое нужно удалить:')
+    bot.register_next_step_handler(message, del_events)
+
+
+def del_events(message):
+    try:
+        user_data = {}
+        user_data[message.chat.id] = {'event_for_del': message.text}
+        if message.text not in event_names:
+            bot.send_message(message.chat.id, 'Такого события нет')
+        else:
+            bot.send_message(message.chat.id, f'Событие {message.text} удалено')
+            del event_names[message.text]
+
+    except ValueError:
+        bot.send_message(message.chat.id, 'Возможно вы ввели неправильное название события')
 
 
 def send_event(chat_id, event_name):
@@ -50,6 +86,8 @@ def send_event(chat_id, event_name):
 @bot.message_handler(func=lambda message: True)
 def handle_all_message(message):
     bot.send_message(message.chat.id, 'Я не понимаю, что вы говорите. Чтобы создать событие, введите /event.')
+    bot.send_message(message.chat.id, 'Чтобы посмотреть на список событий, введите /events_status')
+    bot.send_message(message.chat.id, 'Чтобы удалить событие, введите /del_event.')
 
 
 if __name__ == '__main__':
