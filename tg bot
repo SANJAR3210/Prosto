@@ -16,8 +16,6 @@ def events_status(message):
         if len(key_list) > 0:
             for i in range(len(key_list)):
                 bot.send_message(message.chat.id, f'Событие {key_list[i]} длилось - {value_list[i]}')
-            print(f'самое долгое событие - ')
-            print(f'оно длилось {max(value_list)}')
         else:
             bot.send_message(message.chat.id, 'Ошибка, У вас нет событий')
     except ValueError:
@@ -30,7 +28,9 @@ def start_message(message):
     btn1 = types.KeyboardButton("Привет")
     btn2 = types.KeyboardButton("Задать вопрос")
     btn3 = types.KeyboardButton("Создать событие")
-    markup.add(btn1, btn2, btn3)
+    btn4 = types.KeyboardButton("Смотреть все события")
+    btn5 = types.KeyboardButton("Удалить событие")
+    markup.add(btn1, btn2, btn3, btn4, btn5)
     bot.send_message(message.chat.id,
                      "Привет, {0.first_name}! Это бот Трэкер задач, он отслеживает длительность тех или "
                      "иных действий)".format(message.from_user),
@@ -52,9 +52,11 @@ def set_event_name(message):
     # btn2 = types.KeyboardButton("1 час")
     btn3 = types.KeyboardButton("Создать событие")
     back = types.KeyboardButton("Вернуться в главное меню")
+    btn4 = types.KeyboardButton("Смотреть все события")
+    btn5 = types.KeyboardButton("Удалить событие")
     # minuts = 0
     # hours = 0
-    markup.add(back, btn3)
+    markup.add(back, btn3, btn4, btn5)
     # curr_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
     # if (message.text == "1 минута"):
     #     bot.send_message(message.chat.id, text="На сколько минут поставить таймер")
@@ -68,14 +70,15 @@ def set_event_name(message):
         button1 = types.KeyboardButton("Привет")
         button2 = types.KeyboardButton("Задать вопрос")
         button3 = types.KeyboardButton("Создать событие")
-        markup.add(button1, button2, button3)
+        button4 = types.KeyboardButton("Смотреть все события")
+        button5 = types.KeyboardButton("Удалить событие")
+        markup.add(button1, button2, button3, button4, button5)
         bot.send_message(message.chat.id, text="Вы вернулись в главное меню", reply_markup=markup)
     elif (message.text == "Создать событие"):
         event_message(message)
     bot.send_message(message.chat.id,
                      "Введите дату и время, когда вы хотите получить событие в формате ГГГГ-ММ-ДД чч:мм:сс.".format(
-                         message.from_user),
-                     reply_markup=markup)
+                         message.from_user), reply_markup=markup)
     curr_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
     bot.send_message(message.chat.id, f'Например {curr_time}')
     bot.register_next_step_handler(message, event_set, user_data)
@@ -143,6 +146,12 @@ def func(message):
     elif (message.text == "Как тебя зовут?"):
         bot.send_message(message.chat.id, "У меня... нет имени :(")
 
+    elif (message.text == "Удалить событие"):
+        event_del(message)
+
+    elif (message.text == "Смотреть все события"):
+        events_status(message)
+
     elif message.text == "Что ты можешь?":
         bot.send_message(message.chat.id, "1)Поздороваться с тобой")
         bot.send_message(message.chat.id, "2)Создать событие")
@@ -155,8 +164,12 @@ def func(message):
         button1 = types.KeyboardButton("Привет")
         button2 = types.KeyboardButton("Задать вопрос")
         button3 = types.KeyboardButton("Создать событие")
-        markup.add(button1, button2, button3)
+        button4 = types.KeyboardButton("Смотреть все события")
+        button5 = types.KeyboardButton("Удалить событие")
+        markup.add(button1, button2, button3, button4, button5)
         bot.send_message(message.chat.id, text="Вы вернулись в главное меню", reply_markup=markup)
+    else:
+        bot.send_message(message.chat.id, 'Меня тебя не понимать')
 
 
 if __name__ == '__main__':
