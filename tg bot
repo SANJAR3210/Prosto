@@ -69,26 +69,11 @@ def temporary_event_message(message):
 
 def set_temporary_event_name(message):
     user_data = {}
-    user_data[message.chat.id] = {'event_name': message.text}
+    user_data[message.chat.id] = {'temporary_event_name': message.text}
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn3 = types.KeyboardButton("Создать временное событие")
     back = types.KeyboardButton("Вернуться в главное меню")
     markup.add(back, btn3)
-    if (message.text == "Вернуться в главное меню"):
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        button1 = types.KeyboardButton("Привет")
-        button2 = types.KeyboardButton("Задать вопрос")
-        button3 = types.KeyboardButton("Создать временное событие")
-        button4 = types.KeyboardButton("Создать постоянное событие")
-        markup.add(button1, button2, button3, button4)
-        bot.send_message(message.chat.id, text="Вы вернулись в главное меню", reply_markup=markup)
-
-    elif (message.text == "Создать временное событие"):
-        temporary_event_message(message)
-
-    elif (message.text == "Создать постоянное событие"):
-        constant_event_message(message)
-
     bot.send_message(message.chat.id,
                      "Введите дату и время, когда вы хотите получить событие в формате ГГГГ-ММ-ДД чч:мм:сс.".format(
                          message.from_user),
@@ -106,7 +91,7 @@ def temporary_event_set(message, user_data):
         if delta.total_seconds() <= 0:
             bot.send_message(message.chat.id, 'Вы ввели прошедшую дату, попробуйте создать событие еще раз.')
         else:
-            event_name = user_data[message.chat.id]['event_name']
+            event_name = user_data[message.chat.id]['temporary_event_name']
             bot.send_message(message.chat.id,
                              'Событие "{}" установлено на {}.'.format(event_name, event_time))
             event_timer = threading.Timer(delta.total_seconds(), send_temporary_event, [message.chat.id, event_name])
@@ -126,7 +111,7 @@ def event_del(message):
 def del_temporary_events(message):
     try:
         user_data = {}
-        user_data[message.chat.id] = {'event_for_del': message.text}
+        user_data[message.chat.id] = {'temporary_event_for_del': message.text}
         if message.text not in temporary_event_names:
             bot.send_message(message.chat.id, 'Такого события нет')
         else:
@@ -150,28 +135,16 @@ def constant_event_message(message):
 
 def set_constant_event_name(message):
     user_data = {}
-    user_data[message.chat.id] = {'event_name': message.text}
+    user_data[message.chat.id] = {'constant_event_name': message.text}
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn3 = types.KeyboardButton("Создать постоянное событие")
     back = types.KeyboardButton("Вернуться в главное меню")
     markup.add(back, btn3)
-    if (message.text == "Вернуться в главное меню"):
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        button1 = types.KeyboardButton("Привет")
-        button2 = types.KeyboardButton("Задать вопрос")
-        button3 = types.KeyboardButton("Создать временное событие")
-        button4 = types.KeyboardButton("Создать постоянное событие")
-        markup.add(button1, button2, button3, button4)
-        bot.send_message(message.chat.id, text="Вы вернулись в главное меню", reply_markup=markup)
-    elif (message.text == "Создать временное событие"):
-        temporary_event_message(message)
-    elif (message.text == "Создать постоянное событие"):
-        constant_event_message(message)
     bot.register_next_step_handler(message, constant_event_set, user_data)
 
 
 def constant_event_set(message, user_data):
-    event_name = user_data[message.chat.id]['event_name']
+    event_name = user_data[message.chat.id]['constant_event_name']
     bot.send_message(message.chat.id,
                      'Событие "{}" создано'.format(event_name))
     incomplete_constant_event_names.append(event_name)
@@ -185,14 +158,21 @@ def constant_event_del(message):
 
 def del_constant_events(message):
     try:
-        if message.text not in incomplete_constant_event_names or message.text not in completed_constant_event_names:
-            bot.send_message(message.chat.id, 'Такого события нет')
+        user_data = {}
+        user_data[message.chat.id] = {'constant_event_for_del': message.text}
+        constant_event_for_del = user_data[message.chat.id]['constant_event_for_del']
+        if constant_event_for_del not in incomplete_constant_event_names:
+            if constant_event_for_del not in completed_constant_event_names:
+                bot.send_message(message.chat.id, 'Такого события нет')
         else:
-            bot.send_message(message.chat.id, f'Событие {message.text} удалено')
-            if message.text in incomplete_constant_event_names:
-                del incomplete_constant_event_names[message.text]
-            elif message.text in incomplete_constant_event_names:
-                del completed_constant_event_names[message.text]
+            i = incomplete_constant_event_names.index(constant_event_for_del)
+            bot.send_message(message.chat.id, f'Событие {constant_event_for_del} удалено')
+            if constant_event_for_del in incomplete_constant_event_names:
+                print(incomplete_constant_event_names[i])
+                del incomplete_constant_event_names[i]
+            if constant_event_for_del in completed_constant_event_names:
+                print(completed_constant_event_names[i])
+                del completed_constant_event_names[i]
 
     except ValueError:
         bot.send_message(message.chat.id, 'Возможно вы ввели неправильное название события')
@@ -230,6 +210,12 @@ def func(message):
 
     elif (message.text == "Список постоянных событий"):
         constant_events_status(message)
+
+    elif (message.text == "Удалить временное событие"):
+        event_del(message)
+
+    elif (message.text == "Удалить постоянное событие"):
+        constant_event_del(message)
 
     elif (message.text == "Создать временное событие"):
         temporary_event_message(message)
@@ -269,7 +255,9 @@ def func(message):
         button4 = types.KeyboardButton("Список временных событий")
         button5 = types.KeyboardButton("Список постоянных событий")
         button7 = types.KeyboardButton("Завершить событие")
-        markup.add(button1, button2, button3, button4, button5, button6, button7)
+        button8 = types.KeyboardButton("Удалить временное событие")
+        button9 = types.KeyboardButton("Удалить постоянное событие")
+        markup.add(button1, button2, button3, button4, button5, button6, button7, button8, button9)
         bot.send_message(message.chat.id, text="Вы вернулись в главное меню", reply_markup=markup)
 
 
