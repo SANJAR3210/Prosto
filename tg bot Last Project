@@ -3,10 +3,17 @@ import datetime
 import time
 import threading
 from telebot import types
+from random import choice
 
 temporary_event_names = dict()
 completed_constant_event_names = list()
 incomplete_constant_event_names = list()
+my_name = ['У меня... нет имени ༼☯﹏☯༽', 'Я тот, чьё имя нельзя называть в слух!!! (◣◞◢ )',
+           'культурный человек представляется первым (∩ ⌣̀‸⌣́) ',
+           'Я - Аинз Оал Гоун!!! (у меня нет имени, это просто отсылка к аниме OverLord) (⁄ ⁄•⁄ω⁄•⁄ ⁄)',
+           '	(≖､≖╬) вот так называется твой палец между средним и мизинцем, так меня и зовут 	(≖､≖╬)',
+           'Эх... ты давишь на больное ╥﹏╥',
+           'Я тебе не скажу, ты баааака ( ≖౪≖ )凸 ']
 bot = telebot.TeleBot('6662439465:AAFIY1nxwPtnB1cv0zp4T5GEdlmBKgEoGdc')
 
 
@@ -232,7 +239,7 @@ def func(message):
         bot.send_message(message.chat.id, text="Задай мне вопрос", reply_markup=markup)
 
     elif (message.text == "Как тебя зовут?"):
-        bot.send_message(message.chat.id, "У меня... нет имени :(")
+        bot.send_message(message.chat.id, choice(my_name))
 
     elif message.text == "Что ты можешь?":
         bot.send_message(message.chat.id, "1)Поздороваться с тобой")
