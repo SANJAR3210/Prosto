@@ -8,13 +8,20 @@ from random import choice
 temporary_event_names = dict()
 completed_constant_event_names = list()
 incomplete_constant_event_names = list()
-my_name = ['У меня... нет имени ༼☯﹏☯༽', 'Я тот, чьё имя нельзя называть в слух!!! (◣◞◢ )',
-           'культурный человек представляется первым (∩ ⌣̀‸⌣́) ',
-           'Я - Аинз Оал Гоун!!! (у меня нет имени, это просто отсылка к аниме OverLord) (⁄ ⁄•⁄ω⁄•⁄ ⁄)',
-           '	(≖､≖╬) вот так называется твой палец между средним и мизинцем, так меня и зовут 	(≖､≖╬)',
-           'Эх... ты давишь на больное ╥﹏╥',
-           'Я тебе не скажу, ты баааака ( ≖౪≖ )凸 ']
 bot = telebot.TeleBot('6662439465:AAFIY1nxwPtnB1cv0zp4T5GEdlmBKgEoGdc')
+
+
+@bot.message_handler(commands=['dice'])
+def dice(message):
+    send_kubik(message.chat.id)
+
+
+def send_kubik(chat_id):
+    value = bot.send_dice(chat_id, emoji='🎲').dice.value
+    time.sleep(.5)
+    bot.send_message(chat_id, 'Вам выпало...')
+    time.sleep(5)
+    bot.send_message(chat_id, f'Число {value}!')
 
 
 @bot.message_handler(commands=['temporary_events_status'])
@@ -135,26 +142,18 @@ def send_temporary_event(chat_id, event_name):
 
 @bot.message_handler(commands=['constant_event'])
 def constant_event_message(message):
-    # Запрашиваем у пользователя название события
-    bot.send_message(message.chat.id, 'Введите название события:')
-    bot.register_next_step_handler(message, set_constant_event_name)
-
-
-def set_constant_event_name(message):
-    user_data = {}
-    user_data[message.chat.id] = {'constant_event_name': message.text}
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn3 = types.KeyboardButton("Создать постоянное событие")
+    btn1 = types.KeyboardButton("Создать постоянное событие")
     back = types.KeyboardButton("Вернуться в главное меню")
-    markup.add(back, btn3)
-    bot.register_next_step_handler(message, constant_event_set, user_data)
+    markup.add(back, btn1)
+    bot.send_message(message.chat.id, 'Введите название события:', reply_markup=markup)
+    bot.register_next_step_handler(message, constant_event_set)
 
 
-def constant_event_set(message, user_data):
-    event_name = user_data[message.chat.id]['constant_event_name']
+def constant_event_set(message):
     bot.send_message(message.chat.id,
-                     'Событие "{}" создано'.format(event_name))
-    incomplete_constant_event_names.append(event_name)
+                     'Событие "{}" создано'.format(message.text))
+    incomplete_constant_event_names.append(message.text)
 
 
 @bot.message_handler(commands=['del_constant_event'])
@@ -239,6 +238,12 @@ def func(message):
         bot.send_message(message.chat.id, text="Задай мне вопрос", reply_markup=markup)
 
     elif (message.text == "Как тебя зовут?"):
+        my_name = ['У меня... нет имени ༼☯﹏☯༽', 'Я тот, чьё имя нельзя называть в слух!!! (◣◞◢ )',
+                   'культурный человек представляется первым (∩ ⌣̀‸⌣́) ',
+                   'Я - Аинз Оал Гоун!!! (у меня нет имени, это просто отсылка к аниме OverLord) (⁄ ⁄•⁄ω⁄•⁄ ⁄)',
+                   '	(≖､≖╬) вот как называется твой палец между средним и мизинцем, так меня и зовут 	(≖､≖╬)',
+                   'Эх... ты давишь на больное ╥﹏╥',
+                   'Я тебе не скажу, ты баааака ( ≖౪≖ )凸 ']
         bot.send_message(message.chat.id, choice(my_name))
 
     elif message.text == "Что ты можешь?":
