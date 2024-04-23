@@ -8,7 +8,7 @@ from random import choice
 temporary_event_names = dict()
 completed_constant_event_names = list()
 incomplete_constant_event_names = list()
-bot = telebot.TeleBot('6662439465:AAFIY1nxwPtnB1cv0zp4T5GEdlmBKgEoGdc')
+bot = telebot.TeleBot('Token')
 the_most_frequent_temporary_event = ''
 count_the_most_frequent_temporary_event = 0
 the_most_frequent_constant_event = ''
