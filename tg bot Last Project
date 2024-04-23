@@ -9,6 +9,19 @@ temporary_event_names = dict()
 completed_constant_event_names = list()
 incomplete_constant_event_names = list()
 bot = telebot.TeleBot('6662439465:AAFIY1nxwPtnB1cv0zp4T5GEdlmBKgEoGdc')
+the_most_frequent_temporary_event = ''
+count_the_most_frequent_temporary_event = 0
+the_most_frequent_constant_event = ''
+count_the_most_frequent_constant_event = 0
+
+
+def ya_zabil(message, event_time, event_name):
+    now = datetime.datetime.now()
+    delta = event_time - now
+    for i in range(int(delta.total_seconds() // 3600)):
+        event_timer = threading.Timer((delta.total_seconds() - i * 3600), send_temporary_event,
+                                      [message.chat.id, f'  у вас назначено событие {event_name}'])
+        event_timer.start()
 
 
 @bot.message_handler(commands=['dice'])
@@ -24,14 +37,40 @@ def send_kubik(chat_id):
     bot.send_message(chat_id, f'Число {value}!')
 
 
+def most_frequent_temporary_event(message):
+    global the_most_frequent_temporary_event
+    global count_the_most_frequent_temporary_event
+    bot.send_message(message.chat.id, f'Самое частое временное событие {the_most_frequent_temporary_event}')
+    bot.send_message(message.chat.id, f'Оно повторялось {count_the_most_frequent_temporary_event} раз')
+
+
+def most_frequent_constant_event(message):
+    global the_most_frequent_constant_event
+    global count_the_most_frequent_constant_event
+    bot.send_message(message.chat.id, f'Самое частое постоянное событие {the_most_frequent_constant_event}')
+    bot.send_message(message.chat.id, f'Оно повторялось {count_the_most_frequent_constant_event} раз')
+
+
 @bot.message_handler(commands=['temporary_events_status'])
 def temporary_events_status(message):
+    global count_the_most_frequent_temporary_event
+    global the_most_frequent_temporary_event
     try:
         value_list = list(temporary_event_names.values())
         key_list = list(temporary_event_names.keys())
         if len(key_list) > 0:
             for i in range(len(key_list)):
                 bot.send_message(message.chat.id, f'Событие {key_list[i]} длилось - {value_list[i]}')
+            for j in range(len(key_list)):
+                if key_list.count(key_list[j]) >= count_the_most_frequent_temporary_event:
+                    the_most_frequent_temporary_event = key_list[j]
+                    count_the_most_frequent_temporary_event = key_list.count(key_list[j])
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            btn1 = types.KeyboardButton("Самое частое временное событие")
+            btn2 = types.KeyboardButton("Вернуться в главное меню")
+            markup.add(btn1, btn2)
+            bot.send_message(message.chat.id, "Теперь вы можете увидеть самое частое временное событие",
+                             reply_markup=markup)
         else:
             bot.send_message(message.chat.id, 'Ошибка, У вас нет временных событий')
     except ValueError:
@@ -40,6 +79,8 @@ def temporary_events_status(message):
 
 @bot.message_handler(commands=['constant_events_status'])
 def constant_events_status(message):
+    global count_the_most_frequent_constant_event
+    global the_most_frequent_constant_event
     try:
         comp = completed_constant_event_names[:]
         incomp = incomplete_constant_event_names[:]
@@ -47,6 +88,16 @@ def constant_events_status(message):
             bot.send_message(message.chat.id, 'Завершённые события:')
             for i in range(len(comp)):
                 bot.send_message(message.chat.id, f'{i + 1}) {comp[i]}')
+            for j in range(len(comp)):
+                if comp.count(comp[j]) >= count_the_most_frequent_constant_event:
+                    the_most_frequent_constant_event = comp[j]
+                    count_the_most_frequent_constant_event = comp.count(comp[j])
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            btn1 = types.KeyboardButton("Самое частое постоянное событие")
+            btn2 = types.KeyboardButton("Вернуться в главное меню")
+            markup.add(btn1, btn2)
+            bot.send_message(message.chat.id, "Теперь вы можете увидеть самое частое постоянное событие",
+                             reply_markup=markup)
         else:
             bot.send_message(message.chat.id, 'Ошибка, У вас нет завершённых событий')
         if len(incomp) > 0:
@@ -54,7 +105,7 @@ def constant_events_status(message):
             for i in range(len(incomp)):
                 bot.send_message(message.chat.id, f'{i + 1}) {incomp[i]}')
         else:
-            bot.send_message(message.chat.id, 'Ошибка, Все существующие события были завершены')
+            bot.send_message(message.chat.id, 'Ошибка, Все существующие события были завершены либо они отсутсвуют')
     except ValueError:
         bot.send_message(message.chat.id, 'Ошибка, попробуйте снова')
 
@@ -99,6 +150,9 @@ def set_temporary_event_name(message):
 
 def temporary_event_set(message, user_data):
     try:
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        btn1 = types.KeyboardButton("Я забывчивый ┐('～`；)┌")
+        markup.add(btn1)
         event_time = datetime.datetime.strptime(message.text, '%Y-%m-%d %H:%M:%S')
         now = datetime.datetime.now()
         delta = event_time - now
@@ -111,6 +165,8 @@ def temporary_event_set(message, user_data):
             event_timer = threading.Timer(delta.total_seconds(), send_temporary_event, [message.chat.id, event_name])
             event_timer.start()
             temporary_event_names[event_name] = delta
+            if (message.text == "Я забывчивый ┐('～`；)┌"):
+                ya_zabil(message, event_time, event_name)
     except ValueError:
         bot.send_message(message.chat.id,
                          'Вы ввели неверный формат даты и времени, попробуйте создать событие еще раз.')
@@ -205,6 +261,9 @@ def complete_any_event(message):
 
 @bot.message_handler(content_types=['text'])
 def func(message):
+    if datetime.datetime.now().minute % 5 == 0:
+        bot.send_message(message.chat.id, choice(skuka))
+
     if (message.text == "Привет"):
         bot.send_message(message.chat.id, text="Привет :)")
 
@@ -213,6 +272,12 @@ def func(message):
 
     elif (message.text == "Завершить событие"):
         complete_event(message)
+
+    elif (message.text == "Самое частое временное событие"):
+        most_frequent_temporary_event(message)
+
+    elif (message.text == "Самое частое постоянное событие"):
+        most_frequent_constant_event(message)
 
     elif (message.text == "Список постоянных событий"):
         constant_events_status(message)
@@ -228,6 +293,9 @@ def func(message):
 
     elif (message.text == "Создать постоянное событие"):
         constant_event_message(message)
+
+    elif (message.text == "Чёт скушно стало, брось кубик  （○￣ ～ ￣○；）H~m…"):
+        dice(message)
 
     elif (message.text == "Задать вопрос"):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -269,9 +337,12 @@ def func(message):
         button7 = types.KeyboardButton("Завершить событие")
         button8 = types.KeyboardButton("Удалить временное событие")
         button9 = types.KeyboardButton("Удалить постоянное событие")
-        markup.add(button1, button2, button3, button4, button5, button6, button7, button8, button9)
+        button10 = types.KeyboardButton("Чёт скушно стало, брось кубик  （○￣ ～ ￣○；）H~m…")
+        markup.add(button1, button2, button3, button4, button5, button6, button7, button8, button9, button10)
         bot.send_message(message.chat.id, text="Вы вернулись в главное меню", reply_markup=markup)
 
 
 if __name__ == '__main__':
+    skuka = ['(¬‿¬)', 'ε=ε=ε=ε=ε=ε= ◟( ⚫͈ω⚫̤)◞', 'ΣΣ≡≡≡ｰ(ｰ・ω･)ｰ', 'ᕦʕ . ☯ ᴥ ☯ . ʔᕤ', '(；-◞౪◟-)', '( ๑╥⌓╥)(◕⌓◕ ✿)',
+             'ฅʕ ᓀ ᴥ ᓂ ʔฅ']
     bot.infinity_polling()
